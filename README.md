@@ -4,8 +4,8 @@
 A machine learning model for predicting real estate prices using ensemble methods (Gradient Boosting and Random Forest). The model processes various property features including size, location, amenities, and crime rates to generate accurate price predictions.
 
 ## Authors & Collaborators
-Viktoria Gagua
-Tarang Kadyan
+Viktoria Gagua,
+Tarang Kadyan,
 Maria Jose Aleman
 
 ## Key Features
