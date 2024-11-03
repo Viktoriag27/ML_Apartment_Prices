@@ -1,4 +1,4 @@
-# Required imports
+# Required imports for data processing, model training, evaluation, and visualization
 import os
 import pandas as pd
 import numpy as np
@@ -36,6 +36,8 @@ def remove_outliers(df, columns, n_std=4.0):
     Returns:
         DataFrame: Cleaned dataframe with outliers removed
     """
+
+    # Make a copy of the original dataframe to avoid modifying it
     df_clean = df.copy()
     for col in columns:
         if df_clean[col].dtype in ['int64', 'float64']:
@@ -87,6 +89,8 @@ def extract_floor(door_string):
     Returns:
         float or None: Extracted floor number or None if not found
     """
+
+    # Check if input is a string and extract number using regex pattern
     if isinstance(door_string, str):
         match = re.search(r'(\d+)º', door_string)
         if match:
@@ -101,6 +105,7 @@ def print_data_info(df, name):
         df (DataFrame): Input dataframe
         name (str): Name of the dataset for identification
     """
+    # Display the shape, missing values, and column names of the dataframe
     print(f"\n=== {name} Information ===")
     print(f"Shape: {df.shape}")
     print("\nMissing values:")
@@ -118,6 +123,8 @@ def get_training_stats(train_df):
     Returns:
         dict: Dictionary containing various statistics for preprocessing
     """
+
+    # Collect median and quantile statistics for handling missing values and feature engineering
     stats = {
         'floor_median': train_df['floor'].median(),
         'rooms_median': train_df['num_rooms'].median(),
@@ -276,7 +283,7 @@ def create_model_pipeline(X_train, y_train):
         ('onehot', OneHotEncoder(handle_unknown='ignore', sparse_output=False))
     ])
 
-    # Combine transformers
+    # Combine transformers (Assembling preprocessing)
     transformers = []
     if numeric_features:
         transformers.append(('num', numeric_transformer, numeric_features))
@@ -345,6 +352,7 @@ def check_overfitting(model, X_train, y_train, cv=5):
         cv=cv,
         scoring='neg_mean_squared_error'
     )
+    # Convert negative MSE to RMSE for interpretability
     cv_rmse = np.sqrt(-cv_scores)
     
     # Calculate training error
@@ -361,6 +369,7 @@ def check_overfitting(model, X_train, y_train, cv=5):
     overfitting_ratio = train_rmse / cv_rmse.mean()
     print(f"\nOverfitting Ratio (train/cv): {overfitting_ratio:.2f}")
     
+    # Interpret overfitting ratio to give insights on model performance
     if overfitting_ratio < 0.95:
         print("Warning: Model might be underfitting (ratio < 0.95)")
     elif overfitting_ratio > 1.05:
@@ -518,6 +527,7 @@ def perform_cross_validation_analysis(model, X_train, y_train, cv=5):
     Returns:
         dict: Dictionary containing various cross-validation metrics
     """
+    # Display header for cross-validation analysis
     print("\n=== Comprehensive Cross-Validation Analysis ===")
     
     # Create output directory for plots if it doesn't exist
@@ -525,7 +535,7 @@ def perform_cross_validation_analysis(model, X_train, y_train, cv=5):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     
-    # Perform cross-validation
+    # Perform cross-validation RMSE and related statistics
     cv_scores = cross_val_score(
         model, X_train, y_train,
         cv=cv,
@@ -539,7 +549,7 @@ def perform_cross_validation_analysis(model, X_train, y_train, cv=5):
     cv_variance = cv_std ** 2
     cv_variation = cv_std / cv_mean * 100
     
-    # Print metrics
+    # Print overall cross-validation metrics
     print("\nCross-Validation Metrics:")
     print(f"Mean RMSE: {cv_mean:.2f}")
     print(f"Std Dev RMSE: {cv_std:.2f}")
